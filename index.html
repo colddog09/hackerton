@@ -47,6 +47,18 @@
     </header>
 
     <div class="app-container">
+        <!-- Countdown Timer for tasks due within 1 hour -->
+        <div class="countdown-wrapper" id="countdown-wrapper" style="display: none;">
+            <div class="countdown-container">
+                <div class="countdown-icon">🔥</div>
+                <div class="countdown-text">
+                    <div class="countdown-title" id="countdown-task-name">수행평가</div>
+                    <div class="countdown-subtitle">마감까지 남은 시간</div>
+                </div>
+                <div class="countdown-timer" id="countdown-timer">00:00:00</div>
+            </div>
+        </div>
+
         <!-- Urgent Section -->
         <div class="urgent-wrapper" id="urgent-wrapper">
             <div class="urgent-container">
@@ -158,10 +170,6 @@
 
         function filterData(headers, rows) {
             const filteredHeaders = headers.filter((_, index) => !IGNORED_COLUMNS.includes(index));
-            // Preserve original Index in the filtered row object? No, we filter the array.
-            // But for Delete, we need the original index.
-            // Let's attach the original index to the row array itself as a property? Or return object?
-            // "rows" from parseCSV is index 0 -> Sheet Row 2.
 
             // Map rows to objects with index
             const rowsWithIndex = rows.map((r, i) => ({ data: r, originalIndex: i }));
@@ -169,7 +177,7 @@
             const filteredRowObjects = rowsWithIndex.map(obj => ({
                 filteredData: obj.data.filter((_, index) => !IGNORED_COLUMNS.includes(index)),
                 originalIndex: obj.originalIndex,
-                fullData: obj.data // Keep full data for title reference if needed
+                fullData: obj.data
             }));
 
             return { headers: filteredHeaders, rowObjects: filteredRowObjects };
@@ -269,7 +277,7 @@
             );
             const linkUrl = linkColIndex !== -1 ? rowObj.fullData[linkColIndex] : '';
 
-            if (linkUrl && linkUrl.trim() !== '') {
+            if (linkUrl && linkUrl.trim() !== '' && linkUrl.trim().toLowerCase() !== 'x') {
                 html += `<a href="${escapeHtml(linkUrl)}" target="_blank" class="classroom-link-btn" onclick="event.stopPropagation();">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
@@ -278,6 +286,8 @@
                             </svg>
                             클래스룸 열기
                          </a>`;
+            } else {
+                html += `<div class="no-link-msg">링크 없음</div>`;
             }
 
             html += `</div>`; // End Back
@@ -368,25 +378,8 @@
         }
 
         function openAddModal() {
-            if (globalRawHeaders.length === 0) { alert("데이터가 로드되지 않았습니다."); return; }
-
-            const formContainer = document.getElementById('addFormInputs');
-            formContainer.innerHTML = '';
-
-            globalRawHeaders.forEach((header, index) => {
-                // Skip ignored columns (e.g., index 0, 5)
-                if (IGNORED_COLUMNS.includes(index)) return;
-
-                const div = document.createElement('div');
-                div.className = 'form-group';
-                div.innerHTML = `
-                    <label class="form-label">${escapeHtml(header)}</label>
-                    <input class="form-input" type="text" data-index="${index}" placeholder="${escapeHtml(header)} 입력">
-                `;
-                formContainer.appendChild(div);
-            });
-
-            document.getElementById('addModal').classList.add('active');
+            alert("⚠️ 테스트 기능\n\n일정 추가는 구글 시트를 이용해주세요!");
+            openSheet(); // Open the Google Sheet for them
         }
 
         function closeAddModal() {
@@ -604,12 +597,10 @@
                 const diffTime = taskDate - today;
                 const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                 if (diffDays >= 0 && diffDays <= 1) {
-                    // Use obj.filteredData[0] for Title Display!
                     const displayTitle = obj.filteredData[0] || '제목 없음';
                     const deadline = String(dateStr);
                     const label = diffDays === 0 ? '오늘 마감' : '내일 마감';
 
-                    // Add onclick to scroll
                     urgentHtml += `
                         <div class="urgent-card" onclick="scrollToItem(${originalIndex})">
                             <div style="font-size:12px; font-weight:700; color:#FF3B30;">${label}</div>
@@ -622,6 +613,85 @@
 
             if (count > 0) { urgentList.innerHTML = urgentHtml; urgentWrapper.style.display = 'block'; }
             else { urgentWrapper.style.display = 'none'; }
+
+            // Check for countdown timer (tasks due today with < 1 hour until midnight)
+            checkCountdownTimer(rowObjects, dateColIndex);
+        }
+
+        // Countdown Timer Logic
+        let countdownInterval = null;
+
+        function checkCountdownTimer(rowObjects, dateColIndex) {
+            const countdownWrapper = document.getElementById('countdown-wrapper');
+            const countdownTaskName = document.getElementById('countdown-task-name');
+            const countdownTimer = document.getElementById('countdown-timer');
+
+            const now = new Date();
+            const today = new Date(); today.setHours(0, 0, 0, 0);
+            const midnight = new Date(today); midnight.setDate(midnight.getDate() + 1); // Next midnight
+
+            const msUntilMidnight = midnight - now;
+            const fourHours = 4 * 60 * 60 * 1000;
+
+            // Only show timer if within 4 hours of midnight
+            if (msUntilMidnight > fourHours) {
+                countdownWrapper.style.display = 'none';
+                if (countdownInterval) clearInterval(countdownInterval);
+                return;
+            }
+
+            // Find ALL tasks due TODAY
+            const urgentTasks = [];
+            rowObjects.forEach(obj => {
+                const dateStr = obj.fullData[dateColIndex];
+                if (!dateStr) return;
+                const taskDate = parseDateString(String(dateStr));
+                if (!taskDate) return;
+
+                const taskDay = new Date(taskDate); taskDay.setHours(0, 0, 0, 0);
+                if (taskDay.getTime() === today.getTime()) {
+                    urgentTasks.push(obj.filteredData[0] || '수행평가');
+                }
+            });
+
+            // Show countdown if there are urgent tasks
+            if (urgentTasks.length > 0) {
+                // Display all task names
+                countdownTaskName.textContent = urgentTasks.join(', ');
+                countdownWrapper.style.display = 'block';
+
+                // Clear previous interval
+                if (countdownInterval) clearInterval(countdownInterval);
+
+                function updateCountdown() {
+                    const now = new Date();
+                    const midnight = new Date();
+                    midnight.setHours(24, 0, 0, 0);
+                    const diff = midnight - now;
+
+                    if (diff <= 0) {
+                        countdownTimer.textContent = '00:00:00';
+                        countdownWrapper.style.display = 'none';
+                        clearInterval(countdownInterval);
+                        return;
+                    }
+
+                    const hours = Math.floor(diff / (1000 * 60 * 60));
+                    const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                    const secs = Math.floor((diff % (1000 * 60)) / 1000);
+
+                    countdownTimer.textContent =
+                        String(hours).padStart(2, '0') + ':' +
+                        String(mins).padStart(2, '0') + ':' +
+                        String(secs).padStart(2, '0');
+                }
+
+                updateCountdown();
+                countdownInterval = setInterval(updateCountdown, 1000);
+            } else {
+                countdownWrapper.style.display = 'none';
+                if (countdownInterval) clearInterval(countdownInterval);
+            }
         }
 
         // --- Helpers ---
@@ -655,16 +725,16 @@
 
             if (!targetCard) return;
 
-            // Calculate center position using offsetLeft
-            // offsetLeft provides position relative to the scroll container's content start
-            const cardWidth = targetCard.offsetWidth;
-            const cardLeft = targetCard.offsetLeft;
-            const containerCenter = container.clientWidth / 2;
+            // Get the container's scroll info
+            const containerRect = container.getBoundingClientRect();
+            const cardRect = targetCard.getBoundingClientRect();
 
-            // To center the card: 
-            // We want the Card's Center (cardLeft + cardWidth/2) to line up with Viewport Center (containerCenter)
-            // So we shift the view (scrollLeft) by that difference.
-            const scrollPos = (cardLeft + (cardWidth / 2)) - containerCenter;
+            // Calculate how much to scroll to center the card
+            const cardCenter = cardRect.left + cardRect.width / 2;
+            const containerCenter = containerRect.left + containerRect.width / 2;
+            const scrollAdjustment = cardCenter - containerCenter;
+
+            const scrollPos = container.scrollLeft + scrollAdjustment;
 
             container.scrollTo({
                 left: scrollPos,

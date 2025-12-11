@@ -131,6 +131,83 @@ h1 {
     margin-bottom: 20px;
 }
 
+/* Countdown Timer */
+.countdown-wrapper {
+    width: 100%;
+    padding: 0 40px;
+    margin-bottom: 20px;
+}
+
+.countdown-container {
+    background: linear-gradient(135deg, #FF3B30 0%, #FF9500 100%);
+    border-radius: var(--radius-xl);
+    padding: 24px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    box-shadow: 0 8px 32px rgba(255, 59, 48, 0.4);
+    animation: pulse-glow 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+
+    0%,
+    100% {
+        box-shadow: 0 8px 32px rgba(255, 59, 48, 0.4);
+    }
+
+    50% {
+        box-shadow: 0 8px 48px rgba(255, 59, 48, 0.6);
+    }
+}
+
+.countdown-icon {
+    font-size: 48px;
+    animation: shake 0.5s ease-in-out infinite;
+}
+
+@keyframes shake {
+
+    0%,
+    100% {
+        transform: rotate(0deg);
+    }
+
+    25% {
+        transform: rotate(-10deg);
+    }
+
+    75% {
+        transform: rotate(10deg);
+    }
+}
+
+.countdown-text {
+    flex: 1;
+}
+
+.countdown-title {
+    color: white;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.countdown-subtitle {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 14px;
+    margin-top: 4px;
+}
+
+.countdown-timer {
+    font-size: 48px;
+    font-weight: 800;
+    color: white;
+    font-family: 'SF Mono', 'Menlo', monospace;
+    letter-spacing: 2px;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
 .urgent-container {
     background: linear-gradient(135deg, #FF3B30, #FF2D55);
     border-radius: var(--radius-xl);
@@ -322,6 +399,17 @@ h1 {
 
 .classroom-link-btn:active {
     transform: scale(0.98);
+}
+
+.no-link-msg {
+    margin-top: 16px;
+    padding: 12px 20px;
+    background: rgba(0, 0, 0, 0.05);
+    color: #999;
+    text-align: center;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
 }
 
 /* Large Title & Emoji */
