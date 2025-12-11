@@ -741,19 +741,34 @@
         }
 
         // --- Calendar ---
+        // --- Calendar ---
         function renderCalendar(rowObjects) {
             const now = new Date();
-            const year = now.getFullYear();
-            const month = now.getMonth();
+            // Reset hours for accurate date comparison
+            now.setHours(0, 0, 0, 0);
 
-            // Set title
-            document.getElementById('calendar-title').textContent = `${year}년 ${month + 1}월`;
+            // Calculate Start Date: Sunday of Last Week
+            // 1. Get Sunday of This Week
+            const currentDay = now.getDay(); // 0 (Sun) to 6 (Sat)
+            const sundayThisWeek = new Date(now);
+            sundayThisWeek.setDate(now.getDate() - currentDay);
 
-            // Get first day of month and total days
-            const firstDay = new Date(year, month, 1).getDay();
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            // 2. Go back 7 days for Sunday of Last Week
+            const startDate = new Date(sundayThisWeek);
+            startDate.setDate(sundayThisWeek.getDate() - 7);
 
-            // Collect tasks by date
+            // Calculate End Date: 4 weeks (28 days) from Start Date
+            // This covers: Last Week, This Week, Next Week, Week After Next
+            const totalDays = 28;
+            const endDate = new Date(startDate);
+            endDate.setDate(startDate.getDate() + totalDays);
+
+            // Set Title (Range)
+            const startStr = `${startDate.getMonth() + 1}/${startDate.getDate()}`;
+            const endStr = `${endDate.getMonth() + 1}/${endDate.getDate() - 1}`;
+            document.getElementById('calendar-title').textContent = `${startStr} ~ ${endStr} (4주 일정)`;
+
+            // Collect tasks by date string key "YYYY-MM-DD"
             const tasksByDate = {};
             const dateColIndex = findDateColumnIndex(globalRawHeaders);
 
@@ -764,42 +779,50 @@
                     const taskDate = parseDateString(String(dateStr));
                     if (!taskDate) return;
 
-                    // Only this month
-                    if (taskDate.getMonth() === month && taskDate.getFullYear() === year) {
-                        const day = taskDate.getDate();
-                        if (!tasksByDate[day]) tasksByDate[day] = [];
-                        tasksByDate[day].push(obj.filteredData[0] || '수행평가');
+                    // Normalize task date
+                    taskDate.setHours(0, 0, 0, 0);
+
+                    // Check if within range
+                    if (taskDate >= startDate && taskDate < endDate) {
+                        const key = `${taskDate.getFullYear()}-${taskDate.getMonth()}-${taskDate.getDate()}`;
+                        if (!tasksByDate[key]) tasksByDate[key] = [];
+                        tasksByDate[key].push(obj.filteredData[0] || '수행평가');
                     }
                 });
             }
 
-            // Generate days
+            // Generate DaysGrid
             const calendarDays = document.getElementById('calendar-days');
             let html = '';
 
-            // Empty cells before first day
-            for (let i = 0; i < firstDay; i++) {
-                html += '<div class="calendar-day empty"></div>';
-            }
+            // Iterate 28 days
+            for (let i = 0; i < totalDays; i++) {
+                const dayDate = new Date(startDate);
+                dayDate.setDate(startDate.getDate() + i);
 
-            // Days of month
-            const today = now.getDate();
-            for (let day = 1; day <= daysInMonth; day++) {
-                const dayOfWeek = (firstDay + day - 1) % 7;
+                const dayOfWeek = dayDate.getDay();
                 let classes = 'calendar-day';
                 if (dayOfWeek === 0) classes += ' sunday';
                 if (dayOfWeek === 6) classes += ' saturday';
-                if (day === today) classes += ' today';
 
-                const tasks = tasksByDate[day] || [];
+                // Compare timestamps for 'today'
+                if (dayDate.getTime() === now.getTime()) classes += ' today';
+
+                const key = `${dayDate.getFullYear()}-${dayDate.getMonth()}-${dayDate.getDate()}`;
+                const tasks = tasksByDate[key] || [];
+
                 let taskHtml = '';
                 if (tasks.length > 0) {
                     const taskList = tasks.map(taskName => `<div class="task-item">${taskName}</div>`).join('');
                     taskHtml = `<div class="task-list">${taskList}</div>`;
                 }
 
+                const dateNum = dayDate.getDate();
+                // Add month label if it's the 1st
+                const dateLabel = dateNum === 1 ? `${dayDate.getMonth() + 1}월 1일` : dateNum;
+
                 html += `<div class="${classes}" title="${tasks.join(', ')}">
-                    <div class="day-number">${day}</div>
+                    <div class="day-number">${dateLabel}</div>
                     ${taskHtml}
                 </div>`;
             }
