@@ -10,24 +10,44 @@
 
     /* Shadows & Radius */
     --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.06);
-    --shadow-md: 0 12px 32px rgba(0, 0, 0, 0.12);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
     --radius-xl: 32px;
     --radius-sm: 12px;
+
+    /* Safe Area Insets for notched phones */
+    --safe-top: env(safe-area-inset-top);
+    --safe-bottom: env(safe-area-inset-bottom);
 }
 
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    /* Remove tap highlight on iOS */
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "San Francisco", "Helvetica Neue", "Segoe UI", Roboto, Arial, sans-serif;
+    background-color: var(--app-bg);
+    color: var(--text-primary);
     -webkit-font-smoothing: antialiased;
+    /* iOS font smoothing */
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-text-size-adjust: 100%;
+    /* Prevent font scaling on orientation change */
+    touch-action: manipulation;
+    /* Improve touch response */
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background-color: var(--app-bg);
-    color: var(--text-primary);
-    margin: 0;
-    padding: 0;
+    padding-top: calc(85px + var(--safe-top));
+    /* Header height + safe area */
+    padding-bottom: var(--safe-bottom);
     min-height: 100vh;
     overflow-x: hidden;
 }
@@ -804,6 +824,37 @@ h1 {
     gap: 20px;
     max-height: 90vh;
     overflow-y: auto;
+}
+
+/* Buttons */
+button {
+    cursor: pointer;
+    font-family: inherit;
+    border: none;
+    outline: none;
+    -webkit-user-select: none;
+    user-select: none;
+    touch-action: manipulation;
+}
+
+/* Header */
+header {
+    width: 100%;
+    height: calc(70px + var(--safe-top));
+    padding-top: var(--safe-top);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-left: 24px;
+    padding-right: 24px;
+    background: rgba(245, 245, 247, 0.85);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    z-index: 1000;
+    position: fixed;
+    top: 0;
+    left: 0;
 }
 
 .modal-header {
