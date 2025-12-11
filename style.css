@@ -1,0 +1,1310 @@
+:root {
+    /* Premium Apple-like Palette */
+    --app-bg: #F0F2F5;
+    /* Slightly cooler grey */
+    --card-bg: rgba(255, 255, 255, 0.85);
+    /* Glass base */
+    --text-primary: #1D1D1F;
+    --text-secondary: #86868B;
+    --accent-blue: #007AFF;
+    --accent-red: #FF3B30;
+    --urgent-bg: rgba(255, 59, 48, 0.08);
+    --urgent-border: rgba(255, 59, 48, 0.2);
+    --urgent-text: #D70015;
+
+    /* Glassmorphism Tokens */
+    --glass-border: 1px solid rgba(255, 255, 255, 0.6);
+    --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+    --glass-blur: blur(12px);
+
+    /* Refined Shadows */
+    --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.04);
+    --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.08);
+
+    --radius-xl: 28px;
+    --radius-sm: 14px;
+
+    /* Safe Area Insets for notched phones */
+    --safe-top: env(safe-area-inset-top);
+    --safe-bottom: env(safe-area-inset-bottom);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    /* Remove tap highlight on iOS */
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    font-family: "Noto Sans KR", -apple-system, BlinkMacSystemFont, "San Francisco", "Helvetica Neue", "Segoe UI", Roboto, Arial, sans-serif;
+    background-color: var(--app-bg);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    /* iOS font smoothing */
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-text-size-adjust: 100%;
+    /* Prevent font scaling on orientation change */
+    touch-action: manipulation;
+    /* Improve touch response */
+
+    /* Hide scrollbar for Chrome/Safari/Opera */
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+}
+
+/* Hide scrollbar for Chrome/Safari/Opera */
+body::-webkit-scrollbar,
+.scroll-container::-webkit-scrollbar,
+.calendar-section::-webkit-scrollbar {
+    display: none;
+}
+
+body {
+    background-color: var(--app-bg);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+    padding-top: calc(120px + var(--safe-top));
+    /* Increased to prevent cutoff */
+    padding-bottom: var(--safe-bottom);
+}
+
+/* ... existing code ... */
+
+
+
+.app-container {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Header */
+header {
+    width: 100%;
+    max-width: 1200px;
+    padding: 30px 40px 20px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0 auto;
+}
+
+h1 {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+}
+
+.header-left {
+    display: flex;
+    flex-direction: column;
+}
+
+.last-updated {
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 400;
+    margin-top: 4px;
+    opacity: 0.8;
+    cursor: pointer;
+    /* Clickable to set URL */
+}
+
+.last-updated:hover {
+    text-decoration: underline;
+}
+
+.header-controls {
+    display: flex;
+    gap: 12px;
+}
+
+/* Buttons */
+.btn-ios {
+    background-color: white;
+    color: var(--accent-blue);
+    font-size: 15px;
+    font-weight: 600;
+    padding: 10px 16px;
+    border-radius: 40px;
+    border: none;
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+}
+
+.btn-ios:hover {
+    transform: scale(1.04);
+    background-color: #ffffff;
+    box-shadow: var(--shadow-md);
+}
+
+.btn-ios:active {
+    transform: scale(0.96);
+    opacity: 0.8;
+}
+
+.btn-ios:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.btn-ios.active {
+    background-color: var(--accent-blue);
+    color: white;
+    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+}
+
+/* Urgent Section */
+.urgent-wrapper {
+    width: 100%;
+    padding: 0 40px;
+    display: none;
+    margin-bottom: 20px;
+}
+
+/* Countdown Timer */
+.countdown-wrapper {
+    width: 100%;
+    padding: 0 40px;
+    margin-bottom: 20px;
+}
+
+.countdown-container {
+    background: linear-gradient(135deg, #FF3B30 0%, #FF9500 100%);
+    border-radius: var(--radius-xl);
+    padding: 24px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    box-shadow: 0 8px 32px rgba(255, 59, 48, 0.4);
+    animation: pulse-glow 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+
+    0%,
+    100% {
+        box-shadow: 0 8px 32px rgba(255, 59, 48, 0.4);
+    }
+
+    50% {
+        box-shadow: 0 8px 48px rgba(255, 59, 48, 0.6);
+    }
+}
+
+.countdown-icon {
+    font-size: 48px;
+    animation: shake 0.5s ease-in-out infinite;
+}
+
+@keyframes shake {
+
+    0%,
+    100% {
+        transform: rotate(0deg);
+    }
+
+    25% {
+        transform: rotate(-10deg);
+    }
+
+    75% {
+        transform: rotate(10deg);
+    }
+}
+
+.countdown-text {
+    flex: 1;
+}
+
+.countdown-title {
+    color: white;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.countdown-subtitle {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 14px;
+    margin-top: 4px;
+}
+
+.countdown-timer {
+    font-size: 48px;
+    font-weight: 800;
+    color: white;
+    font-family: 'SF Mono', 'Menlo', monospace;
+    letter-spacing: 2px;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.urgent-container {
+    background: linear-gradient(135deg, #FF3B30, #FF2D55);
+    border-radius: var(--radius-xl);
+    padding: 24px;
+    color: white;
+    box-shadow: 0 8px 24px rgba(255, 59, 48, 0.25);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.urgent-title {
+    font-size: 18px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.urgent-list {
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+}
+
+.urgent-list::-webkit-scrollbar {
+    display: none;
+}
+
+.urgent-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    padding: 16px;
+    min-width: 200px;
+    color: black;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.urgent-card:hover {
+    transform: scale(1.05);
+    background: white;
+}
+
+/* Infinite Scroll Wrapper */
+.wrapper {
+    width: 100%;
+    overflow: visible;
+    position: relative;
+    padding: 40px 0;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.scroll-container {
+    display: flex;
+    overflow-x: auto;
+    width: 100%;
+    scroll-snap-type: x mandatory;
+    gap: 40px;
+    padding: 60px 50vw;
+    /* Center active item */
+    box-sizing: border-box;
+    align-items: center;
+    scrollbar-width: none;
+    /* Firefox */
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+}
+
+.scroll-container::-webkit-scrollbar {
+    display: none;
+}
+
+/* Card Style - 3D Container */
+.info-card {
+    flex: 0 0 380px;
+    height: 380px;
+    background: transparent;
+    /* Container is transparent */
+    perspective: 1000px;
+    /* Softer, standard 3D space */
+    scroll-snap-align: center;
+    position: relative;
+    user-select: none;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    /* Smooth scaling */
+    /* Glass Effect Base */
+    background: transparent;
+}
+
+.card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transform-style: preserve-3d;
+    box-shadow: var(--shadow-lg);
+    /* Initial shadow on the inner container */
+    border-radius: var(--radius-xl);
+}
+
+.info-card.flipped .card-inner {
+    transform: rotateY(180deg);
+}
+
+.card-front,
+.card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    /* Glassmorphism styling */
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    border: var(--glass-border);
+    border-radius: var(--radius-xl);
+    backface-visibility: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+    background: var(--card-bg);
+    /* Use semi-transparent white */
+    overflow: hidden;
+    /* For watermark clipping */
+}
+
+/* Enhancing Hover State */
+@media (hover: hover) {
+    .info-card:hover .card-inner {
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.12);
+        /* Deeper lift */
+        transform: translateY(-8px);
+    }
+
+    .info-card.flipped:hover .card-inner {
+        transform: rotateY(180deg) translateY(-8px);
+    }
+}
+
+/* Front Style */
+.card-front {
+    z-index: 2;
+}
+
+/* Back Style */
+.card-back {
+    transform: rotateY(180deg);
+    background: #FAFAFA;
+    /* Slightly different bg */
+    border: 2px solid var(--accent-blue);
+    /* Visual indicator */
+}
+
+/* Urgent Highlight State */
+.info-card.highlight-urgent .card-front,
+.info-card.highlight-urgent .card-back {
+    background-color: #FFE5E5 !important;
+    /* Light Red */
+    border-color: #FF3B30 !important;
+    /* Optional visual cue matching red */
+    transition: background-color 0.5s ease;
+}
+
+/* Overdue (Past Due) State */
+.info-card.highlight-overdue .card-front,
+.info-card.highlight-overdue .card-back {
+    background-color: #E8E8E8 !important;
+    border-color: #999 !important;
+    opacity: 0.7;
+}
+
+/* Classroom Link Button */
+.classroom-link-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 16px;
+    padding: 12px 20px;
+    background: linear-gradient(135deg, #4285F4, #34A853);
+    color: white;
+    text-decoration: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(66, 133, 244, 0.3);
+}
+
+.classroom-link-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba(66, 133, 244, 0.4);
+}
+
+.classroom-link-btn:active {
+    transform: scale(0.98);
+}
+
+.no-link-msg {
+    margin-top: 16px;
+    padding: 12px 20px;
+    background: rgba(0, 0, 0, 0.05);
+    color: #999;
+    text-align: center;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* Set Divider Marker */
+.set-divider {
+    position: relative;
+    width: 0;
+    flex-shrink: 0;
+    margin-left: -20px;
+    margin-right: -20px;
+    z-index: 100;
+}
+
+.set-divider-marker {
+    position: absolute;
+    top: -230px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #FF3B30;
+    font-size: 18px;
+    opacity: 0.9;
+    animation: bounce-down 1s ease-in-out infinite;
+    text-shadow: 0 2px 4px rgba(255, 59, 48, 0.3);
+}
+
+@keyframes bounce-down {
+
+    0%,
+    100% {
+        transform: translateX(-50%) translateY(0);
+    }
+
+    50% {
+        transform: translateX(-50%) translateY(5px);
+    }
+}
+
+/* Header */
+header {
+    width: 100%;
+    height: calc(100px + var(--safe-top));
+    padding-top: calc(20px + var(--safe-top));
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-left: 24px;
+    padding-right: 24px;
+    background: var(--app-bg);
+    z-index: 1000;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+}
+
+/* ... (header h1, buttons remain similar but simplified if needed) ... */
+
+/* Calendar Section (Solid White Modal) */
+.calendar-section {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2000;
+    background: rgba(0, 0, 0, 0.5);
+    /* Simpler dark overlay */
+    -webkit-backdrop-filter: blur(5px);
+    backdrop-filter: blur(5px);
+    /* Keep slight blur on bg, but less heavy */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.calendar-section.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.calendar-modal-content {
+    background: #FFFFFF;
+    /* Solid White */
+    width: 90%;
+    max-width: 1000px;
+    height: 85vh;
+    border-radius: 24px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    padding: 32px;
+    overflow: hidden;
+    transform: scale(0.95);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.calendar-section.show .calendar-modal-content {
+    transform: scale(1);
+    opacity: 1;
+}
+
+/* Calendar Header */
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.calendar-header h2 {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.5px;
+}
+
+.close-calendar {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+}
+
+.close-calendar:hover {
+    background: rgba(0, 0, 0, 0.1);
+    transform: rotate(90deg);
+}
+
+/* Calendar Grid */
+/* Calendar Grid Headers */
+.calendar-grid-header {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    margin-bottom: 12px;
+    text-align: center;
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Calendar Days Grid (The missing part!) */
+.calendar-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    /* Spacing between days */
+    flex: 1;
+    overflow-y: auto;
+    padding: 4px;
+    /* Space for focus rings */
+}
+
+/* Day Cell */
+.calendar-day {
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(0, 0, 0, 0.03);
+    border-radius: 16px;
+    padding: 12px;
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.calendar-day:hover {
+    background: rgba(255, 255, 255, 0.8);
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    z-index: 10;
+}
+
+.calendar-day.today {
+    background: rgba(0, 122, 255, 0.08);
+    /* Special bg for today */
+    border: 2px solid var(--accent-blue);
+}
+
+.calendar-day .day-number {
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-size: 15px;
+    color: var(--text-secondary);
+}
+
+.calendar-day.today .day-number {
+    color: var(--accent-blue);
+    font-weight: 700;
+}
+
+.calendar-day.sunday .day-number {
+    color: var(--accent-red);
+}
+
+.calendar-day.saturday .day-number {
+    color: var(--accent-blue);
+}
+
+/* Task Items in Calendar */
+.task-item {
+    font-size: 12px;
+    background: var(--text-primary);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 12px;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-weight: 500;
+    opacity: 0.9;
+    transition: opacity 0.2s;
+}
+
+.task-item:hover {
+    opacity: 1;
+    transform: scale(1.05);
+}
+
+.calendar-day .task-dots {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    margin-top: 4px;
+}
+
+.calendar-day .task-dot {
+    width: 6px;
+    height: 6px;
+    background: #FF3B30;
+    border-radius: 50%;
+}
+
+.calendar-day .task-list {
+    margin-top: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.calendar-day .task-item {
+    font-size: 11px;
+    color: #333;
+    background: rgba(255, 59, 48, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.calendar-day.empty {
+    background: transparent;
+    cursor: default;
+}
+
+.calendar-day.empty:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.calendar-day.today {
+    background: linear-gradient(135deg, #007AFF, #5856D6);
+}
+
+.calendar-day.today .day-number {
+    color: white;
+}
+
+.calendar-day .day-number {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.calendar-day.sunday .day-number {
+    color: #FF3B30;
+}
+
+.calendar-day.saturday .day-number {
+    color: #007AFF;
+}
+
+.calendar-day .task-dot {
+    width: 6px;
+    height: 6px;
+    background: #FF3B30;
+    border-radius: 50%;
+    margin-top: 4px;
+    display: inline-block;
+    margin-right: 2px;
+}
+
+.calendar-day .task-count {
+    font-size: 10px;
+    color: #FF3B30;
+    font-weight: 600;
+    margin-top: 2px;
+}
+
+/* Large Title & Emoji */
+.card-bg-title {
+    position: absolute;
+    top: -15px;
+    left: -15px;
+    font-size: 140px;
+    font-weight: 900;
+    color: rgba(0, 0, 0, 0.03);
+    pointer-events: none;
+    white-space: nowrap;
+    line-height: 1;
+    z-index: 0;
+}
+
+.card-bg-emoji {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 280px;
+    /* Much larger */
+    opacity: 0.12;
+    /* More visible */
+    filter: blur(1px);
+    /* Sharper */
+    pointer-events: none;
+    z-index: 0;
+    user-select: none;
+}
+
+.card-content {
+    z-index: 1;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    height: 100%;
+}
+
+.card-header-small {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 20px;
+}
+
+.card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    flex-grow: 1;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.info-row {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.info-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.info-value {
+    font-size: 17px;
+    color: var(--text-primary);
+    font-weight: 400;
+    line-height: 1.5;
+    padding: 4px 8px;
+    margin-left: -8px;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+
+/* Editing styling */
+.editing-enabled .info-value,
+.editing-enabled .card-header-small {
+    background-color: rgba(0, 122, 255, 0.08);
+    cursor: text;
+}
+
+.editing-enabled .info-value:focus,
+.editing-enabled .card-header-small:focus {
+    background-color: rgba(0, 122, 255, 0.15);
+    outline: none;
+}
+
+/* Fix: Allow text selection when editing */
+.editing-enabled .info-card {
+    user-select: text;
+    -webkit-user-select: text;
+}
+
+[contenteditable="false"] {
+    cursor: default;
+}
+
+/* FAB Add Button */
+.fab-add {
+    position: fixed;
+    bottom: 40px;
+    right: 40px;
+    width: 60px;
+    height: 60px;
+    background: var(--accent-blue);
+    border-radius: 50%;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-md);
+    cursor: pointer;
+    transition: transform 0.2s;
+    z-index: 100;
+    border: none;
+}
+
+.fab-add:hover {
+    transform: scale(1.1);
+}
+
+.fab-add svg {
+    width: 32px;
+    height: 32px;
+}
+
+/* Modal */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+    z-index: 200;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+.modal {
+    background: white;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 500px;
+    padding: 30px;
+    box-shadow: var(--shadow-md);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+/* Header */
+header {
+    width: 100%;
+    height: calc(70px + var(--safe-top));
+    padding-top: var(--safe-top);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-left: 24px;
+    padding-right: 24px;
+    /* Floating Glass Header */
+    background: rgba(255, 255, 255, 0.7);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
+    z-index: 1000;
+    position: fixed;
+    top: 0;
+    left: 0;
+}
+
+header h1 {
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, #1D1D1F 0%, #434344 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* iOS Style Squircle Buttons */
+.btn-ios {
+    background: rgba(255, 255, 255, 0.5);
+    /* Semi-transparent base */
+    color: var(--accent-blue);
+    border: 1px solid rgba(0, 122, 255, 0.1);
+    border-radius: 18px;
+    /* Squircle-ish */
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.btn-ios:hover {
+    background: var(--accent-blue);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.25);
+    border-color: transparent;
+}
+
+.btn-ios:active {
+    transform: scale(0.96);
+    opacity: 0.9;
+}
+
+.modal-header {
+    font-size: 20px;
+    font-weight: 700;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: var(--text-secondary);
+    cursor: pointer;
+}
+
+.modal-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+}
+
+.form-input {
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #E5E5EA;
+    font-size: 16px;
+    background: #F2F2F7;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+    background: white;
+}
+
+.btn-submit {
+    background: var(--accent-blue);
+    color: white;
+    padding: 14px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.btn-submit:disabled {
+    opacity: 0.5;
+}
+
+/* Spinner & States */
+.state-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+}
+
+.spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid rgba(0, 0, 0, 0.1);
+    border-top-color: var(--accent-blue);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-bottom: 20px;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.error-msg {
+    color: #FF3B30;
+    text-align: center;
+    background: rgba(255, 59, 48, 0.1);
+    padding: 15px 30px;
+    border-radius: 12px;
+}
+
+/* Responsive Design - Mobile & Tablet */
+@media (max-width: 1024px) {
+    header {
+        padding: calc(20px + var(--safe-top)) 20px 15px 20px;
+    }
+
+    h1 {
+        font-size: 24px;
+    }
+
+    .header-controls {
+        gap: 8px;
+    }
+
+    .btn-ios {
+        font-size: 14px;
+        padding: 8px 16px;
+    }
+
+    .urgent-wrapper {
+        padding: 0 20px;
+    }
+
+    .info-card {
+        flex: 0 0 320px;
+        height: 320px;
+    }
+
+    .scroll-container {
+        padding: 40px 30vw;
+        gap: 30px;
+    }
+}
+
+@media (max-width: 768px) {
+
+    /* Header adjustments for mobile */
+    header {
+        height: calc(80px + var(--safe-top));
+        padding-top: calc(20px + var(--safe-top));
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    header h1 {
+        font-size: 20px;
+    }
+
+    .last-updated {
+        font-size: 11px;
+    }
+
+    /* Hide header buttons on mobile */
+    .header-controls {
+        display: none;
+    }
+
+    /* Center title on mobile */
+    .header-left {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn-ios {
+        padding: 6px 12px;
+        font-size: 13px;
+        height: 32px;
+    }
+
+    /* Adjust container padding */
+    .app-container {
+        padding: 0;
+        /* Remove horizontal padding on mobile */
+        padding-top: 10px;
+    }
+
+    /* Cards slightly smaller on mobile, or full width if preferred */
+    .info-card {
+        width: 85vw;
+        /* Make cards wider on mobile for better readability */
+        height: 55vh;
+        /* Use viewport height for better scaling */
+        max-height: 400px;
+        min-height: 300px;
+    }
+
+    /* Adjust FAB position */
+    .fab-add {
+        bottom: calc(20px + var(--safe-bottom));
+        right: 20px;
+        width: 50px;
+        height: 50px;
+    }
+
+    /* Urgent section adjustments */
+    .urgent-wrapper {
+        margin: 10px 16px 20px 16px;
+    }
+
+    .urgent-container {
+        padding: 16px;
+    }
+
+    .urgent-title {
+        font-size: 16px;
+    }
+
+    .urgent-title-area {
+        padding: 0 4px;
+        margin-bottom: 8px;
+    }
+
+    .urgent-label {
+        font-size: 18px;
+    }
+
+    .urgent-card {
+        min-width: 160px;
+    }
+
+    .calendar-modal-content {
+        width: 95%;
+        height: 80vh;
+        padding: 16px;
+    }
+
+    .calendar-day {
+        min-height: 10vh;
+    }
+
+    .scroll-container {
+        padding: 30px 20vw;
+        gap: 20px;
+    }
+
+    .card-bg-title {
+        font-size: 100px;
+    }
+
+    .card-bg-emoji {
+        font-size: 200px;
+    }
+
+    .fab-add svg {
+        width: 28px;
+        height: 28px;
+    }
+
+    .modal {
+        width: 95%;
+        padding: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 20px;
+    }
+
+    .last-updated {
+        font-size: 12px;
+    }
+
+    .btn-ios {
+        font-size: 12px;
+        padding: 6px 12px;
+    }
+
+    .info-card {
+        flex: 0 0 260px;
+        height: 260px;
+    }
+
+    .scroll-container {
+        padding: 20px 10vw;
+        gap: 15px;
+    }
+
+    .urgent-card {
+        min-width: 140px;
+        padding: 12px;
+    }
+
+    .card-bg-emoji {
+        font-size: 160px;
+    }
+}
