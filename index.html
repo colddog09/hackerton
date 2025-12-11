@@ -3,8 +3,17 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>수행평가 정보</title>
+
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#007AFF">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="수행평가">
+    <link rel="apple-touch-icon" href="icon-192.png">
+
     <link rel="stylesheet" href="style.css">
 </head>
 
@@ -365,6 +374,9 @@
             formContainer.innerHTML = '';
 
             globalRawHeaders.forEach((header, index) => {
+                // Skip ignored columns (e.g., index 0, 5)
+                if (IGNORED_COLUMNS.includes(index)) return;
+
                 const div = document.createElement('div');
                 div.className = 'form-group';
                 div.innerHTML = `
@@ -753,6 +765,13 @@
         }
 
         window.addEventListener('DOMContentLoaded', loadData);
+
+        // Register Service Worker for PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log('Service Worker registered'))
+                .catch(err => console.log('Service Worker failed:', err));
+        }
     </script>
 </body>
 
