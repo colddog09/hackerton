@@ -406,14 +406,14 @@
                 if (WEBHOOK_URL) {
                     try {
                         const res = await fetch(WEBHOOK_URL, {
-                            method: 'GET'
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ action: 'read' })
                         });
                         const json = await res.json();
-                        // Expect n8n to return { headers: [], rows: [] } structure similar to before?
-                        // Or if n8n returns simple JSON list of objects, we need to adapt.
-                        // For now, assume user configures n8n to replicate previous structure OR we adapt if structure is flat.
 
-                        // Adapt: If json is Array of Objects
+                        // Adapt: If json is Array of Objects (Direct Sheet Read)
+                        // If user returns raw rows:
                         if (Array.isArray(json) && json.length > 0) {
                             headers = Object.keys(json[0]); // Get keys as headers
                             rows = json.map(obj => Object.values(obj)); // Convert values to rows
@@ -421,8 +421,20 @@
                         else if (json.headers && json.rows) {
                             headers = json.headers;
                             rows = json.rows;
-                        } else {
-                            throw new Error("Unknown Data Format");
+                        }
+                        // If n8n returns wrapper { data: [...] } ?
+                        else if (json.data && Array.isArray(json.data)) {
+                            // Assuming data is array of objects
+                            headers = Object.keys(json.data[0]);
+                            rows = json.data.map(obj => Object.values(obj));
+                        }
+                        else {
+                            // If empty array or unknown
+                            if (Array.isArray(json) && json.length === 0) {
+                                headers = []; rows = [];
+                            } else {
+                                throw new Error("Unknown Data Generation");
+                            }
                         }
 
                         statusText.textContent = `연동됨 (최근 업데이트: ${new Date().toLocaleTimeString()})`;
