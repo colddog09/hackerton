@@ -289,6 +289,41 @@ h1 {
     transition: background-color 0.5s ease;
 }
 
+/* Overdue (Past Due) State */
+.info-card.highlight-overdue .card-front,
+.info-card.highlight-overdue .card-back {
+    background-color: #E8E8E8 !important;
+    border-color: #999 !important;
+    opacity: 0.7;
+}
+
+/* Classroom Link Button */
+.classroom-link-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 16px;
+    padding: 12px 20px;
+    background: linear-gradient(135deg, #4285F4, #34A853);
+    color: white;
+    text-decoration: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(66, 133, 244, 0.3);
+}
+
+.classroom-link-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba(66, 133, 244, 0.4);
+}
+
+.classroom-link-btn:active {
+    transform: scale(0.98);
+}
+
 /* Large Title & Emoji */
 .card-bg-title {
     position: absolute;

@@ -186,8 +186,9 @@
             // Fix: Use fullData to access by raw index
             const dateStr = dateColIndex !== -1 ? (rowObj.fullData[dateColIndex] || '') : '';
 
-            // Check Urgency
+            // Check Urgency and Overdue
             let isUrgent = false;
+            let isOverdue = false;
             if (dateStr) {
                 const taskDate = parseDateString(String(dateStr));
                 if (taskDate) {
@@ -195,28 +196,33 @@
                     const diffTime = taskDate - today;
                     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                     if (diffDays >= 0 && diffDays <= 1) isUrgent = true;
+                    if (diffDays < 0) isOverdue = true;
                 }
             }
 
             // Front: Poster View (Title + Emoji + Date)
             // Back: Details View (Rows)
 
-            // Add urgency class if needed
-            const urgencyClass = isUrgent ? ' highlight-urgent' : '';
+            // Add urgency/overdue class if needed
+            let cardClass = '';
+            if (isOverdue) cardClass = ' highlight-overdue';
+            else if (isUrgent) cardClass = ' highlight-urgent';
 
             // Remove inline onclick, handled by listeners
-            let html = `<div class="info-card${urgencyClass}" id="card-original-${originalIndex}">`;
+            let html = `<div class="info-card${cardClass}" id="card-original-${originalIndex}">`;
 
             html += `<div class="card-inner">`;
 
             // --- FRONT ---
             html += `<div class="card-front">`;
             html += `   <div class="card-bg-title">${displayTitle}</div>`;
-            html += `   <div class="card-bg-emoji">${emoji}</div>`;
+            html += `   <div class="card-bg-emoji">${isOverdue ? '💀' : emoji}</div>`;
             html += `   <div class="card-content" style="justify-content:center; align-items:center; text-align:center;">`;
             html += `       <div style="font-size:32px; font-weight:800; margin-bottom:10px;">${displayTitle}</div>`;
             html += `       <div style="font-size:18px; color:#666; font-weight:600;">${dateStr}</div>`;
-            if (isUrgent) {
+            if (isOverdue) {
+                html += `<div style="margin-top:8px; font-size:14px; color:#888; font-weight:700;">💀 기한 지남</div>`;
+            } else if (isUrgent) {
                 html += `<div style="margin-top:8px; font-size:14px; color:#FF3B30; font-weight:700;">⚠️ 마감 임박</div>`;
             }
             html += `       <div style="margin-top:20px; font-size:14px; color:#999;">터치하여 상세 정보 보기</div>`;
@@ -237,8 +243,9 @@
                 const label = escapeHtml(header);
                 const value = escapeHtml(row[index] || '-');
                 const isTitle = (index === 0);
+                const isLink = header.toLowerCase().includes('링크') || header.toLowerCase().includes('link') || header.toLowerCase().includes('url');
 
-                if (!isTitle) { // Don't repeat title in body list
+                if (!isTitle && !isLink) { // Don't repeat title, handle links separately
                     html += `<div class="info-row">
                                 <div class="info-label">${label}</div>
                                 <div class="info-value" contenteditable="false">${value}</div>
@@ -247,7 +254,22 @@
             });
             html += `   </div>`;
 
-            // Delete Button Removed
+            // Find and add Classroom Link Button
+            const linkColIndex = globalRawHeaders.findIndex(h =>
+                h.toLowerCase().includes('링크') || h.toLowerCase().includes('link') || h.toLowerCase().includes('url')
+            );
+            const linkUrl = linkColIndex !== -1 ? rowObj.fullData[linkColIndex] : '';
+
+            if (linkUrl && linkUrl.trim() !== '') {
+                html += `<a href="${escapeHtml(linkUrl)}" target="_blank" class="classroom-link-btn" onclick="event.stopPropagation();">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                                <polyline points="15 3 21 3 21 9"></polyline>
+                                <line x1="10" y1="14" x2="21" y2="3"></line>
+                            </svg>
+                            클래스룸 열기
+                         </a>`;
+            }
 
             html += `</div>`; // End Back
 
@@ -595,9 +617,11 @@
             if (!subject) return '📝';
             const s = subject.toLowerCase();
             if (s.includes('수학') || s.includes('math')) return '📐';
+            if (s.includes('r&e') || s.includes('r & e')) return '📚';
             if (s.includes('영어') || s.includes('english')) return 'A';
             if (s.includes('국어') || s.includes('korean') || s.includes('문학') || s.includes('독서')) return '가';
-            if (s.includes('과학') || s.includes('science') || s.includes('물리') || s.includes('화학') || s.includes('생명') || s.includes('지학')) return '🧪';
+            if (s.includes('생명')) return '🧬';
+            if (s.includes('과학') || s.includes('science') || s.includes('물리') || s.includes('화학') || s.includes('지학')) return '🧪';
             if (s.includes('사회') || s.includes('역사') || s.includes('history') || s.includes('윤리') || s.includes('지리')) return '🌍';
             if (s.includes('음악') || s.includes('music')) return '🎵';
             if (s.includes('미술') || s.includes('art')) return '🎨';
