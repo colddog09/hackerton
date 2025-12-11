@@ -412,6 +412,234 @@ h1 {
     font-weight: 500;
 }
 
+/* Set Divider Marker */
+.set-divider {
+    position: relative;
+    width: 0;
+    flex-shrink: 0;
+    margin-left: -20px;
+    margin-right: -20px;
+}
+
+.set-divider-marker {
+    position: absolute;
+    top: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #FF3B30;
+    font-size: 18px;
+    opacity: 0.9;
+    animation: bounce-down 1s ease-in-out infinite;
+    text-shadow: 0 2px 4px rgba(255, 59, 48, 0.3);
+}
+
+@keyframes bounce-down {
+
+    0%,
+    100% {
+        transform: translateX(-50%) translateY(0);
+    }
+
+    50% {
+        transform: translateX(-50%) translateY(5px);
+    }
+}
+
+/* Calendar Section (Backdrop) */
+.calendar-section {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(5px);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.calendar-section.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.calendar-modal-content {
+    background: rgba(255, 255, 255, 0.95);
+    width: 90%;
+    max-width: 900px;
+    height: 85vh;
+    border-radius: 24px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+    transform: scale(0.95);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.calendar-section.show .calendar-modal-content {
+    transform: scale(1);
+}
+
+.calendar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.calendar-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.btn-close {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-close:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--text-primary);
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    margin-bottom: 4px;
+}
+
+.calendar-day-header {
+    text-align: center;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    padding: 12px 0;
+}
+
+.calendar-day-header:first-child {
+    color: #FF3B30;
+}
+
+.calendar-day-header:last-child {
+    color: #007AFF;
+}
+
+.calendar-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    flex: 1;
+}
+
+.calendar-day {
+    min-height: 14vh;
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 8px;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.calendar-day .task-dots {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    margin-top: 4px;
+}
+
+.calendar-day .task-dot {
+    width: 6px;
+    height: 6px;
+    background: #FF3B30;
+    border-radius: 50%;
+}
+
+.calendar-day .task-list {
+    margin-top: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.calendar-day .task-item {
+    font-size: 11px;
+    color: #333;
+    background: rgba(255, 59, 48, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.calendar-day.empty {
+    background: transparent;
+    cursor: default;
+}
+
+.calendar-day.empty:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.calendar-day.today {
+    background: linear-gradient(135deg, #007AFF, #5856D6);
+}
+
+.calendar-day.today .day-number {
+    color: white;
+}
+
+.calendar-day .day-number {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.calendar-day.sunday .day-number {
+    color: #FF3B30;
+}
+
+.calendar-day.saturday .day-number {
+    color: #007AFF;
+}
+
+.calendar-day .task-dot {
+    width: 6px;
+    height: 6px;
+    background: #FF3B30;
+    border-radius: 50%;
+    margin-top: 4px;
+    display: inline-block;
+    margin-right: 2px;
+}
+
+.calendar-day .task-count {
+    font-size: 10px;
+    color: #FF3B30;
+    font-weight: 600;
+    margin-top: 2px;
+}
+
 /* Large Title & Emoji */
 .card-bg-title {
     position: absolute;
