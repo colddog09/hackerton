@@ -26,38 +26,31 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     background-color: var(--app-bg);
     color: var(--text-primary);
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    margin: 0;
+    padding: 0;
     min-height: 100vh;
-    padding: 20px;
     overflow-x: hidden;
 }
 
 .app-container {
     width: 100%;
-    height: 100vh;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    gap: 20px;
     max-width: 1400px;
-    position: relative;
+    margin: 0 auto;
+    padding: 0 20px;
 }
 
 /* Header */
 header {
-    position: absolute;
-    top: 30px;
-    left: 50%;
-    transform: translateX(-50%);
     width: 100%;
     max-width: 1200px;
-    padding: 0 40px;
+    padding: 30px 40px 20px 40px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    z-index: 10;
+    margin: 0 auto;
 }
 
 h1 {
@@ -135,8 +128,7 @@ h1 {
     width: 100%;
     padding: 0 40px;
     display: none;
-    margin-top: 80px;
-    z-index: 5;
+    margin-bottom: 20px;
 }
 
 .urgent-container {
@@ -193,10 +185,11 @@ h1 {
     width: 100%;
     overflow: visible;
     position: relative;
-    padding: 60px 0;
-    flex-grow: 1;
+    padding: 40px 0;
+    flex: 1;
     display: flex;
     align-items: center;
+    justify-content: center;
 }
 
 .scroll-container {
@@ -559,4 +552,151 @@ h1 {
     background: rgba(255, 59, 48, 0.1);
     padding: 15px 30px;
     border-radius: 12px;
+}
+
+/* Responsive Design - Mobile & Tablet */
+@media (max-width: 1024px) {
+    header {
+        padding: 20px 20px 15px 20px;
+    }
+
+    h1 {
+        font-size: 24px;
+    }
+
+    .header-controls {
+        gap: 8px;
+    }
+
+    .btn-ios {
+        font-size: 14px;
+        padding: 8px 16px;
+    }
+
+    .urgent-wrapper {
+        padding: 0 20px;
+    }
+
+    .info-card {
+        flex: 0 0 320px;
+        height: 320px;
+    }
+
+    .scroll-container {
+        padding: 40px 30vw;
+        gap: 30px;
+    }
+}
+
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+
+    header {
+        padding: 15px 10px;
+        margin-bottom: 15px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    h1 {
+        font-size: 22px;
+    }
+
+    .header-controls {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .btn-ios {
+        font-size: 13px;
+        padding: 8px 14px;
+    }
+
+    .urgent-wrapper {
+        padding: 0 10px;
+    }
+
+    .urgent-container {
+        padding: 16px;
+    }
+
+    .urgent-title {
+        font-size: 16px;
+    }
+
+    .urgent-card {
+        min-width: 160px;
+    }
+
+    .info-card {
+        flex: 0 0 280px;
+        height: 280px;
+    }
+
+    .scroll-container {
+        padding: 30px 20vw;
+        gap: 20px;
+    }
+
+    .card-bg-title {
+        font-size: 100px;
+    }
+
+    .card-bg-emoji {
+        font-size: 200px;
+    }
+
+    .fab-add {
+        width: 50px;
+        height: 50px;
+        bottom: 20px;
+        right: 20px;
+    }
+
+    .fab-add svg {
+        width: 28px;
+        height: 28px;
+    }
+
+    .modal {
+        width: 95%;
+        padding: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 20px;
+    }
+
+    .last-updated {
+        font-size: 12px;
+    }
+
+    .btn-ios {
+        font-size: 12px;
+        padding: 6px 12px;
+    }
+
+    .info-card {
+        flex: 0 0 260px;
+        height: 260px;
+    }
+
+    .scroll-container {
+        padding: 20px 10vw;
+        gap: 15px;
+    }
+
+    .urgent-card {
+        min-width: 140px;
+        padding: 12px;
+    }
+
+    .card-bg-emoji {
+        font-size: 160px;
+    }
 }
