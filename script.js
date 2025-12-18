@@ -1,12 +1,43 @@
 
+// Google Sheets Configuration
 const SHEET_ID = '1dgw1DPfIgxyV0qO2qkdLxsbtbMRBt65QcJRwcqyex8I';
-const GID = '0';
+
+// Map Class Number to Sheet GID (Tab ID)
+// ⚠️ USER MUST UPDATE THESE GIDs FOR CLASSES 2-5
+const CLASS_GIDS = {
+    1: '0',           // Class 1
+    2: '1667344915',  // Class 2
+    3: '1590452115',  // Class 3
+    4: '991564034',   // Class 4
+    5: '463016272'    // Class 5
+};
+
+let currentClass = 1;
 const IGNORED_COLUMNS = [0, 5];
 let WEBHOOK_URL = localStorage.getItem('WEBHOOK_URL') || '';
 let globalRawHeaders = []; // For add modal
 
 function getCSVUrl() {
-    return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${GID}&t=${Date.now()}`;
+    const gid = CLASS_GIDS[currentClass] || '0';
+    return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}&t=${Date.now()}`;
+}
+
+function switchClass(classNum) {
+    currentClass = classNum;
+
+    // Update active tab UI
+    document.querySelectorAll('.class-tab').forEach((tab, index) => {
+        if ((index + 1) === classNum) tab.classList.add('active');
+        else tab.classList.remove('active');
+    });
+
+    // Check if GID is configured
+    if (CLASS_GIDS[classNum] && CLASS_GIDS[classNum].startsWith('REPLACE_ME')) {
+        alert(`${classNum}반 시트 ID(GID)가 설정되지 않았습니다.\nscript.js 파일에서 CLASS_GIDS를 업데이트해주세요.`);
+        return;
+    }
+
+    loadData();
 }
 
 function promptWebhookUrl() {
@@ -403,10 +434,19 @@ async function loadData() {
         // Urgent Section - Pass Row Objects to get original index
         updateUrgentSection(filtered.headers, filtered.rowObjects);
 
-        // Infinite Cards
-        container.innerHTML = renderInfiniteCards(filtered.headers, filtered.rowObjects);
-        setupInfiniteScroll(container, rows.length);
-        setupCardInteractions(container);
+        if (rows.length === 0) {
+            container.classList.add('is-empty');
+            container.innerHTML = `
+                <div class="state-container">
+                    <div class="no-data-msg">과제가 없습니다 🎉</div>
+                </div>
+            `;
+        } else {
+            container.classList.remove('is-empty');
+            container.innerHTML = renderInfiniteCards(filtered.headers, filtered.rowObjects);
+            setupInfiniteScroll(container, rows.length);
+            setupCardInteractions(container);
+        }
 
         // Render Calendar
         renderCalendar(filtered.rowObjects);
@@ -882,3 +922,371 @@ if ('serviceWorker' in navigator) {
         .then(reg => console.log('Service Worker registered'))
         .catch(err => console.log('Service Worker failed:', err));
 }
+
+// --- Authentication System Logic ---
+let authMode = 'login'; // 'login' or 'signup'
+let isCaptchaVerified = false;
+
+// Selected signup values
+let selectedRole = 'student';
+let selectedGrade = 1;
+let selectedClass = 1;
+
+// Device Mode
+let deviceMode = localStorage.getItem('deviceMode');
+
+function selectDeviceMode(mode) {
+    deviceMode = mode;
+    localStorage.setItem('deviceMode', mode);
+    applyDeviceMode();
+
+    // Hide selection overlay
+    const overlay = document.getElementById('device-selection-overlay');
+    if (overlay) {
+        overlay.style.opacity = '0';
+        setTimeout(() => {
+            overlay.style.display = 'none';
+        }, 300);
+    }
+}
+
+function applyDeviceMode() {
+    if (deviceMode === 'mobile') {
+        document.body.classList.add('mobile-mode');
+        document.body.classList.remove('web-mode');
+    } else {
+        document.body.classList.add('web-mode');
+        document.body.classList.remove('mobile-mode');
+    }
+}
+
+// Initialize Device Mode on Load
+document.addEventListener('DOMContentLoaded', () => {
+    if (deviceMode) {
+        // If mode is already selected, hide overlay immediately
+        const overlay = document.getElementById('device-selection-overlay');
+        if (overlay) overlay.style.display = 'none';
+        applyDeviceMode();
+    }
+    // Else: Overlay is visible by default in HTML
+});
+
+function initAuth() {
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    const authOverlay = document.getElementById('auth-overlay');
+    const mainContent = document.getElementById('main-content');
+    const userClass = localStorage.getItem('userClass');
+
+    if (isLoggedIn) {
+        authOverlay.style.display = 'none';
+        mainContent.style.opacity = '1';
+        mainContent.style.pointerEvents = 'auto';
+        document.body.classList.remove('auth-locked');
+
+        // --- Role & Class Logic ---
+        const classTabs = document.querySelector('.class-tabs');
+        const title = document.querySelector('h1');
+
+        if (currentUser === 'admin') {
+            // Admin has full access
+            if (classTabs) classTabs.style.display = 'flex';
+            if (title) title.textContent = `수행평가 (관리자)`;
+        } else if (userClass) {
+            currentClass = parseInt(userClass);
+            // Hide class switching tabs for students
+            if (classTabs) classTabs.style.display = 'none';
+            // Update title to show specific class
+            if (title) title.textContent = `수행평가 (${currentClass}반)`;
+        }
+
+        loadData(); // Load actual app data
+    }
+
+    // Initialize pill selection listeners
+    document.querySelectorAll('.pill-group .pill').forEach(pill => {
+        pill.addEventListener('click', (e) => {
+            const group = e.target.closest('.pill-group').id;
+            const value = e.target.dataset.role || e.target.dataset.grade || e.target.dataset.class;
+
+            // Remove active from peers
+            e.target.parentNode.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+            // Set active
+            e.target.classList.add('active');
+
+            // Update state
+            if (group === 'grade-pills') selectedGrade = parseInt(value);
+            if (group === 'class-pills') selectedClass = parseInt(value);
+        });
+    });
+}
+
+function handleCaptchaClick() {
+    if (isCaptchaVerified) return;
+
+    const loader = document.getElementById('captcha-loader');
+    const checkbox = document.getElementById('captcha-checkbox-inner');
+    const wrapper = document.getElementById('captcha-wrapper');
+
+    loader.style.display = 'block';
+
+    // Simulate verification delay
+    setTimeout(() => {
+        loader.style.display = 'none';
+        checkbox.classList.add('verified');
+        wrapper.classList.add('verified-bg');
+        isCaptchaVerified = true;
+    }, 800);
+}
+
+function switchAuthMode() {
+    authMode = authMode === 'login' ? 'signup' : 'login';
+    const title = document.getElementById('auth-title');
+    const subtitle = document.getElementById('auth-subtitle');
+    const mainBtn = document.getElementById('auth-main-btn');
+    const switchBtn = document.getElementById('auth-switch-btn');
+    const signupExtra = document.getElementById('signup-extra-fields');
+    const confirmPwGroup = document.getElementById('confirm-password-group');
+    const usernameLabel = document.getElementById('label-username');
+    const passwordLabel = document.getElementById('label-password');
+
+    if (authMode === 'signup') {
+        title.textContent = '계정 생성';
+        subtitle.textContent = '계속하려면 회원가입 정보를 입력하세요.';
+        mainBtn.textContent = '회원가입';
+        switchBtn.textContent = '이미 계정이 있으나요? 로그인';
+        signupExtra.style.display = 'block';
+        confirmPwGroup.style.display = 'block';
+        usernameLabel.textContent = '아이디';
+        passwordLabel.textContent = '비밀번호';
+    } else {
+        title.textContent = '로그인';
+        subtitle.textContent = '계속하려면 주소를 입력하거나 로그인하세요.';
+        mainBtn.textContent = '로그인';
+        switchBtn.textContent = '계정이 없나요? 회원가입하기';
+        signupExtra.style.display = 'none';
+        confirmPwGroup.style.display = 'none';
+        usernameLabel.textContent = '아이디';
+        passwordLabel.textContent = '비밀번호';
+    }
+
+    // Reset inputs and captcha on mode switch
+    document.getElementById('auth-username').value = '';
+    document.getElementById('auth-password').value = '';
+    const confirmPw = document.getElementById('auth-confirm-password');
+    if (confirmPw) confirmPw.value = '';
+    const studentNum = document.getElementById('auth-student-num');
+    if (studentNum) studentNum.value = '';
+
+    document.getElementById('auth-error-box').style.display = 'none';
+    resetCaptcha();
+}
+
+function resetCaptcha() {
+    isCaptchaVerified = false;
+    const loader = document.getElementById('captcha-loader');
+    const checkbox = document.getElementById('captcha-checkbox-inner');
+    const wrapper = document.getElementById('captcha-wrapper');
+    if (loader) loader.style.display = 'none';
+    if (checkbox) checkbox.classList.remove('verified');
+    if (wrapper) wrapper.classList.remove('verified-bg');
+}
+
+function handleAuthSubmit() {
+    const user = document.getElementById('auth-username').value.trim();
+    const pass = document.getElementById('auth-password').value.trim();
+    const card = document.querySelector('.auth-card');
+
+    // Basic Validation
+    if (!user || !pass) {
+        showAuthError('아이디와 비밀번호를 입력해주세요.');
+        return;
+    }
+
+    // Special Check for Admin
+    if (user === 'admin' && pass === 'admin') {
+        processLogin('admin', null);
+        return;
+    }
+
+    // Validations for Signup
+    if (authMode === 'signup') {
+        const confirmPass = document.getElementById('auth-confirm-password').value.trim();
+        const studentNum = document.getElementById('auth-student-num').value.trim();
+
+        if (pass !== confirmPass) {
+            showAuthError('비밀번호가 일치하지 않습니다.');
+            return;
+        }
+
+        if (!studentNum) {
+            showAuthError('번호를 입력해주세요.');
+            return;
+        }
+
+        // Check if student info already exists (as per image)
+        const registrations = JSON.parse(localStorage.getItem('studentRegistrations') || '[]');
+        const exists = registrations.find(r => r.grade === selectedGrade && r.class === selectedClass && r.num === studentNum);
+
+        if (exists) {
+            const errorBox = document.getElementById('auth-error-box');
+            const errorDesc = document.getElementById('error-msg-desc');
+            errorDesc.textContent = `${exists.username || user} (${selectedGrade}학년 ${selectedClass}반 ${studentNum}번)`;
+            errorBox.style.display = 'flex';
+            card.classList.remove('shake');
+            void card.offsetWidth;
+            card.classList.add('shake');
+            return;
+        }
+    }
+
+    // Validate Captcha
+    if (!isCaptchaVerified) {
+        showAuthError('로봇 방지 확인을 완료해주세요.');
+        return;
+    }
+
+    if (authMode === 'signup') {
+        const studentNum = document.getElementById('auth-student-num').value.trim();
+        // Register User
+        const existingUsers = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
+        if (existingUsers[user]) {
+            showAuthError('이미 존재하는 아이디입니다.');
+        } else {
+            // Auto-detect class from ID (2nd digit) if it's a 4-digit number
+            let finalClass = selectedClass;
+            if (user.length === 4 && !isNaN(user)) {
+                const classDigit = parseInt(user[1]);
+                if (classDigit >= 1 && classDigit <= 9) {
+                    finalClass = classDigit;
+                }
+            }
+
+            // Save user credentials and their class
+            existingUsers[user] = {
+                password: pass,
+                class: finalClass
+            };
+            localStorage.setItem('registeredUsers', JSON.stringify(existingUsers));
+
+            // Store student registration
+            const registrations = JSON.parse(localStorage.getItem('studentRegistrations') || '[]');
+            registrations.push({
+                username: user,
+                role: 'student',
+                grade: selectedGrade,
+                class: finalClass,
+                num: studentNum
+            });
+            localStorage.setItem('studentRegistrations', JSON.stringify(registrations));
+
+            alert('회원가입이 완료되었습니다! 로그인해주세요.');
+            switchAuthMode();
+        }
+    } else {
+        // Simple login
+        const existingUsers = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
+        const userData = existingUsers[user];
+
+        // Support both old string format and new object format
+        const storedPassword = (typeof userData === 'object') ? userData.password : userData;
+
+        if (userData && storedPassword === pass) {
+            // Success
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('currentUser', user);
+
+            // Set user class (if it exists in new format, else default to current selected or 1)
+            const userClass = (typeof userData === 'object') ? userData.class : 1;
+            localStorage.setItem('userClass', userClass);
+            currentClass = userClass;
+
+            // Visual Transition
+            const authOverlay = document.getElementById('auth-overlay');
+            const mainContent = document.getElementById('main-content');
+
+            // Hide tabs and update title immediately
+            const classTabs = document.querySelector('.class-tabs');
+            if (classTabs) classTabs.style.display = 'none';
+            const title = document.querySelector('h1');
+            if (title) title.textContent = `수행평가 (${currentClass}반)`;
+
+            card.style.transform = 'scale(0.9) translateY(-20px)';
+            card.style.opacity = '0';
+
+            setTimeout(() => {
+                authOverlay.style.opacity = '0';
+                setTimeout(() => {
+                    authOverlay.style.display = 'none';
+                    mainContent.style.opacity = '1';
+                    mainContent.style.pointerEvents = 'auto';
+                    document.body.classList.remove('auth-locked');
+                    loadData();
+                }, 500);
+            }, 300);
+        } else {
+            showAuthError('아이디 또는 비밀번호가 일치하지 않습니다.');
+        }
+    }
+}
+
+
+function processLogin(user, userClass) {
+    const card = document.querySelector('.auth-card');
+
+    // Success
+    localStorage.setItem('isLoggedIn', 'true');
+    localStorage.setItem('currentUser', user);
+
+    if (user === 'admin') {
+        localStorage.removeItem('userClass'); // Admin doesn't have a fixed class
+    } else {
+        localStorage.setItem('userClass', userClass);
+        currentClass = userClass;
+    }
+
+    // Visual Transition
+    const authOverlay = document.getElementById('auth-overlay');
+    const mainContent = document.getElementById('main-content');
+
+    // UI Updates based on role
+    const classTabs = document.querySelector('.class-tabs');
+    const title = document.querySelector('h1');
+
+    if (user === 'admin') {
+        if (classTabs) classTabs.style.display = 'flex';
+        if (title) title.textContent = `수행평가 (관리자)`;
+    } else {
+        if (classTabs) classTabs.style.display = 'none';
+        if (title) title.textContent = `수행평가 (${currentClass}반)`;
+    }
+
+    card.style.transform = 'scale(0.9) translateY(-20px)';
+    card.style.opacity = '0';
+
+    setTimeout(() => {
+        // Force reload to ensure clean state and fresh data
+        location.reload();
+    }, 300);
+}
+
+function showAuthError(msg) {
+    const card = document.querySelector('.auth-card');
+    card.classList.remove('shake');
+    void card.offsetWidth; // trigger reflow
+    card.classList.add('shake');
+    alert(msg);
+}
+
+function handleLogout() {
+    if (confirm('로그아웃 하시겠습니까?')) {
+        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('currentUser');
+        localStorage.removeItem('userClass');
+
+        // Reset UI before reload or show overlay
+        location.reload(); // Simplest way to reset all states securely
+    }
+}
+
+// Call initAuth on load
+window.addEventListener('load', initAuth);

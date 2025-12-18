@@ -72,8 +72,8 @@ body {
     color: var(--text-primary);
     min-height: 100vh;
     overflow-x: hidden;
-    padding-top: calc(120px + var(--safe-top));
-    /* Increased to prevent cutoff */
+    padding-top: calc(160px + var(--safe-top));
+    /* Increased to prevent overlap with taller header */
     padding-bottom: var(--safe-bottom);
 }
 
@@ -91,16 +91,7 @@ body {
     padding: 0 20px;
 }
 
-/* Header */
-header {
-    width: 100%;
-    max-width: 1200px;
-    padding: 30px 40px 20px 40px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 0 auto;
-}
+/* Consolidated Header Style below at line 516 */
 
 h1 {
     font-size: 28px;
@@ -515,8 +506,8 @@ h1 {
 /* Header */
 header {
     width: 100%;
-    height: calc(100px + var(--safe-top));
-    padding-top: calc(20px + var(--safe-top));
+    height: calc(150px + var(--safe-top));
+    padding-top: calc(60px + var(--safe-top));
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -1307,4 +1298,522 @@ header h1 {
     .card-bg-emoji {
         font-size: 160px;
     }
+}
+
+/* Class Tabs (Apple Segmented Control Style) */
+.class-tabs {
+    background: rgba(118, 118, 128, 0.12);
+    /* Standard iOS secondary system fill */
+    border-radius: 9px;
+    padding: 2px;
+    display: inline-flex;
+    gap: 0;
+    margin: 0 16px;
+    box-shadow: inset 0 0.5px 0 rgba(0, 0, 0, 0.05);
+    user-select: none;
+    backdrop-filter: blur(10px);
+}
+
+.class-tab {
+    background: transparent;
+    border: none;
+    padding: 6px 20px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+    cursor: pointer;
+    border-radius: 7px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+    position: relative;
+    border: 0.5px solid transparent;
+    /* Align with active border */
+}
+
+.class-tab.active {
+    background: #FFFFFF;
+    color: #000;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12), 0 3px 1px rgba(0, 0, 0, 0.04);
+    font-weight: 600;
+    border: 0.5px solid rgba(0, 0, 0, 0.04);
+}
+
+.class-tab:active:not(.active) {
+    background: rgba(118, 118, 128, 0.1);
+}
+
+/* Remove old container styles */
+.class-tab-container {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        height: auto;
+        gap: 12px;
+        padding-bottom: 12px;
+    }
+
+    .class-tabs {
+        width: 100%;
+        overflow-x: auto;
+        justify-content: center;
+        margin: 4px 0;
+    }
+
+    .class-tab {
+        flex: 1;
+        text-align: center;
+        padding: 8px 0;
+    }
+
+    .header-controls {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Empty State Message */
+.scroll-container.is-empty {
+    padding: 60px 0 !important;
+    /* Remove the 50vw side padding */
+    justify-content: center;
+    overflow-x: hidden;
+}
+
+.no-data-msg {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-align: center;
+    padding: 80px 40px;
+    opacity: 0.9;
+    letter-spacing: -0.02em;
+}
+
+.no-data-msg::before {
+    content: "📔";
+    display: block;
+    font-size: 64px;
+    margin-bottom: 24px;
+    filter: grayscale(0.5) opacity(0.5);
+}
+/* --- Authentication System --- */
+.auth-locked {
+    overflow: hidden;
+}
+
+.auth-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--app-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+/* Glassmorphism Auth Card */
+.auth-card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    border-radius: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    padding: 40px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    transform: translateY(0);
+    transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.auth-logo {
+    font-size: 48px;
+    margin-bottom: 15px;
+}
+
+.auth-header h2 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.auth-header p {
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.input-group {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.input-group label {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    padding-left: 12px;
+}
+
+.input-group input {
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-size: 16px;
+    outline: none;
+    transition: all 0.2s;
+}
+
+.input-group input:focus {
+    border-color: var(--accent-blue);
+    background: white;
+}
+
+.captcha-group {
+    margin-bottom: 25px;
+    background: rgba(0, 122, 255, 0.05);
+    padding: 15px;
+    border-radius: 12px;
+}
+
+.captcha-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.captcha-group input {
+    width: 100%;
+    background: white;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 16px;
+}
+
+.auth-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.btn-auth-primary {
+    background: var(--accent-blue);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 14px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, background 0.2s;
+}
+
+.btn-auth-primary:active {
+    transform: scale(0.98);
+}
+
+.btn-auth-secondary {
+    background: transparent;
+    color: var(--accent-blue);
+    border: none;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.btn-auth-secondary:hover {
+    text-decoration: underline;
+}
+
+/* Shake animation for errors */
+.shake {
+    animation: auth-shake 0.4s ease-in-out;
+}
+
+@keyframes auth-shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-10px); }
+    40%, 80% { transform: translateX(10px); }
+}
+
+/* Visual CAPTCHA Styles */
+.captcha-display {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+#captcha-canvas {
+    background: #f8f9fa;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.btn-refresh-captcha {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    transition: transform 0.3s;
+    padding: 5px;
+}
+
+.btn-refresh-captcha:hover {
+    transform: rotate(180deg);
+}
+
+/* --- Checkbox CAPTCHA Styles --- */
+.captcha-checkbox-wrapper {
+    display: flex;
+    align-items: center;
+    background: #f9f9f9;
+    border: 1px solid #d3d3d3;
+    border-radius: 3px;
+    padding: 10px 12px;
+    width: 100%;
+    max-width: 300px;
+    margin: 0 auto 20px auto;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.2s;
+}
+
+.captcha-checkbox-wrapper:hover {
+    background: #f1f1f1;
+}
+
+.captcha-checkbox-box {
+    width: 24px;
+    height: 24px;
+    border: 2px solid #c1c1c1;
+    border-radius: 2px;
+    background: #fff;
+    margin-right: 12px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.captcha-label {
+    font-size: 14px;
+    color: #555;
+    font-family: Roboto, helvetica, arial, sans-serif;
+    flex-grow: 1;
+}
+
+.captcha-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    opacity: 0.6;
+}
+
+.captcha-info img {
+    width: 24px;
+    height: 24px;
+}
+
+.captcha-info span {
+    font-size: 8px;
+    color: #555;
+}
+
+/* Loader Spinner */
+.captcha-loader {
+    display: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid #4d90fe;
+    border-top: 2px solid transparent;
+    border-radius: 50%;
+    animation: captcha-spin 0.6s linear infinite;
+}
+
+@keyframes captcha-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Checkmark */
+#captcha-checkbox-inner.verified {
+    width: 12px;
+    height: 6px;
+    border-left: 3px solid #00a000;
+    border-bottom: 3px solid #00a000;
+    transform: rotate(-45deg);
+    margin-top: -3px;
+}
+
+.captcha-checkbox-wrapper.verified-bg {
+    pointer-events: none;
+}
+
+/* --- Detailed Signup Redesign --- */
+.input-section {
+    margin-bottom: 24px;
+}
+
+.input-section label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: var(--text-primary);
+}
+
+.pill-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.pill {
+    background: #f1f3f5;
+    border: 2px solid transparent;
+    border-radius: 12px;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #495057;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.165, 0.84, 0.44, 1);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.pill:hover {
+    background: #e9ecef;
+}
+
+.pill.active {
+    background: #edf2ff;
+    border-color: #4c6ef5;
+    color: #4c6ef5;
+}
+
+.pill-icon {
+    font-size: 16px;
+}
+
+/* Error Box Styling */
+.auth-error-msg-box {
+    background: #fff0f0;
+    border: 1px solid #ffc9c9;
+    border-radius: 16px;
+    padding: 16px;
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    animation: auth-shake 0.4s ease-in-out;
+}
+
+.error-msg-icon {
+    font-size: 24px;
+    color: #fa5252;
+}
+
+.error-msg-content {
+    flex: 1;
+}
+
+.error-msg-content strong {
+    display: block;
+    color: #fa5252;
+    font-size: 15px;
+    margin-bottom: 2px;
+}
+
+.error-msg-content p {
+    font-size: 13px;
+    color: #868e96;
+    margin: 0;
+}
+
+/* Specific button color for the primary action as per image */
+.btn-auth-primary {
+    background: #b2b7ff !important; /* Lighter blue/purple from image */
+    box-shadow: 0 4px 12px rgba(178, 183, 255, 0.3);
+}
+
+.btn-auth-primary:hover {
+    background: #a5aaff !important;
+}
+
+/* Logout Button Styling */
+.btn-logout {
+    color: #ff3b30 !important; /* System Red */
+    border-color: rgba(255, 59, 48, 0.2) !important;
+}
+
+.btn-logout:hover {
+    background: rgba(255, 59, 48, 0.1) !important;
+    border-color: #ff3b30 !important;
+}
+
+.btn-logout svg {
+    stroke: #ff3b30;
+}
+
+/* --- Mobile Mode Optimization --- */
+body.mobile-mode {
+    max-width: 480px;
+    margin: 0 auto;
+    background-color: #f5f5f7; /* iOS background */
+    box-shadow: 0 0 50px rgba(0,0,0,0.1); /* Slight shadow to separate from bg on desktop */
+    min-height: 100vh;
+}
+
+body.mobile-mode .auth-overlay,
+body.mobile-mode #device-selection-overlay {
+    max-width: 480px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+}
+
+body.mobile-mode .schedule-container {
+    padding: 1rem; /* Tighter padding */
+    gap: 1rem;
+}
+
+body.mobile-mode .cal-header {
+    padding: 1rem;
+}
+
+body.mobile-mode .time-slot {
+    padding: 1rem;
+}
+
+body.mobile-mode .task-card {
+    padding: 0.8rem;
+}
+
+/* Ensure buttons are large enough for touch */
+body.mobile-mode button,
+body.mobile-mode .pill,
+body.mobile-mode input {
+    min-height: 48px; 
 }
