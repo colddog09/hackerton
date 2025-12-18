@@ -1035,6 +1035,7 @@ function initAuth() {
         // --- Role & Class Logic ---
         const classTabs = document.querySelector('.class-tabs');
         const title = document.querySelector('h1');
+        const currentUser = localStorage.getItem('currentUser');
 
         if (currentUser === 'admin') {
             // Admin has full access
@@ -1046,9 +1047,14 @@ function initAuth() {
             if (classTabs) classTabs.style.display = 'none';
             // Update title to show specific class
             if (title) title.textContent = `수행평가 (${currentClass}반)`;
-        }
 
-        loadData(); // Load actual app data
+
+            // Switch to user's class and load their data
+            switchClass(currentClass);
+        } else {
+            // For admin or first-time users, load default data
+            loadData();
+        }
     }
 
     // Initialize pill selection listeners
