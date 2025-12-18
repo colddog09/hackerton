@@ -249,9 +249,18 @@ function setupInfiniteScroll(container, singleSetCount) {
         container.scrollLeft = singleSetWidth * 2;
 
         let isResetting = false;
-        container.addEventListener('scroll', () => {
+
+        // Remove existing handler if present
+        if (container._infiniteScrollHandler) {
+            container.removeEventListener('scroll', container._infiniteScrollHandler);
+        }
+
+        // Define new handler
+        const scrollHandler = () => {
             if (isResetting) return;
             const currentScroll = container.scrollLeft;
+
+            // 1. Infinite Scroll Logic
             if (currentScroll < singleSetWidth) {
                 isResetting = true;
                 container.style.scrollSnapType = 'none';
@@ -272,7 +281,34 @@ function setupInfiniteScroll(container, singleSetCount) {
                 container.style.scrollSnapType = 'x mandatory';
                 isResetting = false;
             }
-        });
+
+            // 2. Focus Effect Logic
+            updateScrollFocus(container);
+        };
+
+        // Attach and store
+        container.addEventListener('scroll', scrollHandler);
+        container._infiniteScrollHandler = scrollHandler;
+
+        // Initial Focus Call
+        updateScrollFocus(container);
+    });
+}
+
+function updateScrollFocus(container) {
+    const cards = container.querySelectorAll('.info-card');
+    const containerCenter = container.scrollLeft + (container.offsetWidth / 2);
+
+    cards.forEach(card => {
+        const cardCenter = card.offsetLeft + (card.offsetWidth / 2);
+        const dist = Math.abs(containerCenter - cardCenter);
+
+        // Threshold for "center": within 100px (half card width approx)
+        if (dist < 150) {
+            card.classList.add('active-center');
+        } else {
+            card.classList.remove('active-center');
+        }
     });
 }
 
@@ -800,6 +836,10 @@ function scrollToItem(originalIndex) {
 
 // --- 3D Interactions (Tilt & Flip) ---
 function setupCardInteractions(container) {
+    // Prevent duplicate listeners
+    if (container.dataset.interactionsSetup === 'true') return;
+    container.dataset.interactionsSetup = 'true';
+
     // 1. Tilt Effect (Mouse)
     container.addEventListener('mousemove', (e) => {
         const card = e.target.closest('.info-card');
@@ -962,6 +1002,15 @@ function applyDeviceMode() {
 
 // Initialize Device Mode on Load
 document.addEventListener('DOMContentLoaded', () => {
+    // One-time Reload Logic before Device Selection
+    if (!localStorage.getItem('deviceMode')) {
+        if (!sessionStorage.getItem('hasReloadedForDevice')) {
+            sessionStorage.setItem('hasReloadedForDevice', 'true');
+            location.reload();
+            return;
+        }
+    }
+
     if (deviceMode) {
         // If mode is already selected, hide overlay immediately
         const overlay = document.getElementById('device-selection-overlay');
@@ -1035,8 +1084,53 @@ function handleCaptchaClick() {
         checkbox.classList.add('verified');
         wrapper.classList.add('verified-bg');
         isCaptchaVerified = true;
+        checkSignupValidity(); // Check validity after captcha
     }, 800);
 }
+
+// Check Signup Validity for Button Color
+function checkSignupValidity() {
+    if (authMode !== 'signup') return;
+
+    const username = document.getElementById('auth-username').value.trim();
+    const password = document.getElementById('auth-password').value.trim();
+    const confirmPw = document.getElementById('auth-confirm-password').value.trim();
+    const studentNum = document.getElementById('auth-student-num').value.trim();
+    const mainBtn = document.getElementById('auth-main-btn');
+
+    const isValid = (
+        username.length > 0 &&
+        password.length >= 4 &&
+        password === confirmPw &&
+        studentNum.length > 0 &&
+        isCaptchaVerified
+    );
+
+    if (isValid) {
+        mainBtn.classList.add('btn-valid');
+    } else {
+        mainBtn.classList.remove('btn-valid');
+    }
+}
+
+// Attach Input Listeners for Real-time Check
+function attachValidationListeners() {
+    const inputs = [
+        'auth-username',
+        'auth-password',
+        'auth-confirm-password',
+        'auth-student-num'
+    ];
+    inputs.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('input', checkSignupValidity);
+        }
+    });
+}
+// Call this once on init
+document.addEventListener('DOMContentLoaded', attachValidationListeners);
+
 
 function switchAuthMode() {
     authMode = authMode === 'login' ? 'signup' : 'login';
@@ -1079,6 +1173,8 @@ function switchAuthMode() {
 
     document.getElementById('auth-error-box').style.display = 'none';
     resetCaptcha();
+    // Re-check validity (should clear valid state)
+    checkSignupValidity();
 }
 
 function resetCaptcha() {

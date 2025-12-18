@@ -339,13 +339,23 @@ h1 {
     perspective: 1000px;
     /* Softer, standard 3D space */
     scroll-snap-align: center;
+    scroll-snap-stop: always;
+    /* Force stop at each card */
     position: relative;
     user-select: none;
     cursor: pointer;
-    transition: transform 0.3s ease;
-    /* Smooth scaling */
+    /* Default Dimmed State */
+    transform: scale(0.92);
+    opacity: 0.7;
+    transition: transform 0.4s ease, opacity 0.4s ease;
     /* Glass Effect Base */
     background: transparent;
+}
+
+.info-card.active-center {
+    transform: scale(1.05);
+    opacity: 1;
+    z-index: 10;
 }
 
 .card-inner {
@@ -429,6 +439,28 @@ h1 {
     background-color: #E8E8E8 !important;
     border-color: #999 !important;
     opacity: 0.7;
+}
+
+/* Button Valid State */
+.btn-auth-primary.btn-valid {
+    background: linear-gradient(135deg, #007AFF 0%, #00C6FF 100%);
+    box-shadow: 0 8px 20px rgba(0, 122, 255, 0.4);
+    transform: scale(1.02);
+    animation: pulse-blue 2s infinite;
+}
+
+@keyframes pulse-blue {
+    0% {
+        box-shadow: 0 8px 20px rgba(0, 122, 255, 0.4);
+    }
+
+    50% {
+        box-shadow: 0 8px 30px rgba(0, 122, 255, 0.6);
+    }
+
+    100% {
+        box-shadow: 0 8px 20px rgba(0, 122, 255, 0.4);
+    }
 }
 
 /* Classroom Link Button */
@@ -1399,6 +1431,7 @@ header h1 {
     margin-bottom: 24px;
     filter: grayscale(0.5) opacity(0.5);
 }
+
 /* --- Authentication System --- */
 .auth-locked {
     overflow: hidden;
@@ -1430,6 +1463,9 @@ header h1 {
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
     transform: translateY(0);
     transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+    /* Scroll Fix */
+    max-height: 85vh;
+    overflow-y: auto;
 }
 
 .auth-header {
@@ -1547,9 +1583,21 @@ header h1 {
 }
 
 @keyframes auth-shake {
-    0%, 100% { transform: translateX(0); }
-    20%, 60% { transform: translateX(-10px); }
-    40%, 80% { transform: translateX(10px); }
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    20%,
+    60% {
+        transform: translateX(-10px);
+    }
+
+    40%,
+    80% {
+        transform: translateX(10px);
+    }
 }
 
 /* Visual CAPTCHA Styles */
@@ -1565,7 +1613,7 @@ header h1 {
     border: 1px solid #ced4da;
     border-radius: 8px;
     cursor: pointer;
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .btn-refresh-captcha {
@@ -1651,8 +1699,13 @@ header h1 {
 }
 
 @keyframes captcha-spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 /* Checkmark */
@@ -1754,7 +1807,8 @@ header h1 {
 
 /* Specific button color for the primary action as per image */
 .btn-auth-primary {
-    background: #b2b7ff !important; /* Lighter blue/purple from image */
+    background: #b2b7ff !important;
+    /* Lighter blue/purple from image */
     box-shadow: 0 4px 12px rgba(178, 183, 255, 0.3);
 }
 
@@ -1764,7 +1818,8 @@ header h1 {
 
 /* Logout Button Styling */
 .btn-logout {
-    color: #ff3b30 !important; /* System Red */
+    color: #ff3b30 !important;
+    /* System Red */
     border-color: rgba(255, 59, 48, 0.2) !important;
 }
 
@@ -1781,8 +1836,10 @@ header h1 {
 body.mobile-mode {
     max-width: 480px;
     margin: 0 auto;
-    background-color: #f5f5f7; /* iOS background */
-    box-shadow: 0 0 50px rgba(0,0,0,0.1); /* Slight shadow to separate from bg on desktop */
+    background-color: #f5f5f7;
+    /* iOS background */
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.1);
+    /* Slight shadow to separate from bg on desktop */
     min-height: 100vh;
 }
 
@@ -1795,7 +1852,8 @@ body.mobile-mode #device-selection-overlay {
 }
 
 body.mobile-mode .schedule-container {
-    padding: 1rem; /* Tighter padding */
+    padding: 1rem;
+    /* Tighter padding */
     gap: 1rem;
 }
 
@@ -1815,5 +1873,5 @@ body.mobile-mode .task-card {
 body.mobile-mode button,
 body.mobile-mode .pill,
 body.mobile-mode input {
-    min-height: 48px; 
+    min-height: 48px;
 }
