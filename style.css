@@ -72,6 +72,7 @@ body {
     color: var(--text-primary);
     min-height: 100vh;
     overflow-x: hidden;
+    overflow-y: auto;
     padding-top: calc(160px + var(--safe-top));
     /* Increased to prevent overlap with taller header */
     padding-bottom: var(--safe-bottom);
@@ -89,6 +90,7 @@ body {
     max-width: 1400px;
     margin: 0 auto;
     padding: 0 20px;
+    overflow: visible;
 }
 
 /* Consolidated Header Style below at line 516 */
@@ -252,16 +254,17 @@ h1 {
 .urgent-container {
     background: linear-gradient(135deg, #FF3B30, #FF2D55);
     border-radius: var(--radius-xl);
-    padding: 24px;
+    padding: 20px;
     color: white;
     box-shadow: 0 8px 24px rgba(255, 59, 48, 0.25);
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 12px;
+    overflow: visible;
 }
 
 .urgent-title {
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 700;
     display: flex;
     align-items: center;
@@ -272,7 +275,8 @@ h1 {
     display: flex;
     gap: 16px;
     overflow-x: auto;
-    padding-bottom: 4px;
+    overflow-y: visible;
+    padding: 12px 10px;
 }
 
 .urgent-list::-webkit-scrollbar {
@@ -303,7 +307,7 @@ h1 {
     width: 100%;
     overflow: visible;
     position: relative;
-    padding: 40px 0;
+    padding: 80px 0;
     flex: 1;
     display: flex;
     align-items: center;
@@ -313,6 +317,7 @@ h1 {
 .scroll-container {
     display: flex;
     overflow-x: auto;
+    overflow-y: visible;
     width: 100%;
     scroll-snap-type: x mandatory;
     gap: 40px;

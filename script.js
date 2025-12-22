@@ -13,7 +13,7 @@ const CLASS_GIDS = {
 };
 
 let currentClass = 1;
-const IGNORED_COLUMNS = [0, 5];
+const IGNORED_COLUMNS = [0]; // Only ignore first column (index)
 let WEBHOOK_URL = localStorage.getItem('WEBHOOK_URL') || '';
 let globalRawHeaders = []; // For add modal
 
@@ -347,8 +347,44 @@ async function apiRequest(action, payload) {
 }
 
 function openAddModal() {
-    alert("⚠️ 테스트 기능\n\n일정 추가는 구글 시트를 이용해주세요!");
-    openSheet(); // Open the Google Sheet for them
+    const modal = document.getElementById('addModal');
+    const formContainer = document.getElementById('addFormInputs');
+
+    // Clear previous inputs
+    formContainer.innerHTML = '';
+
+    // Generate input fields based on headers (excluding ignored columns)
+    globalRawHeaders.forEach((header, index) => {
+        if (IGNORED_COLUMNS.includes(index)) return;
+
+        const inputGroup = document.createElement('div');
+        inputGroup.className = 'input-group';
+        inputGroup.style.marginBottom = '16px';
+
+        const label = document.createElement('label');
+        label.textContent = header;
+        label.style.display = 'block';
+        label.style.marginBottom = '8px';
+        label.style.fontWeight = '600';
+        label.style.color = 'var(--text-primary)';
+
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.dataset.index = index;
+        input.dataset.header = header;
+        input.placeholder = `${header} 입력`;
+        input.style.width = '100%';
+        input.style.padding = '12px';
+        input.style.border = '1px solid #ddd';
+        input.style.borderRadius = '12px';
+        input.style.fontSize = '14px';
+
+        inputGroup.appendChild(label);
+        inputGroup.appendChild(input);
+        formContainer.appendChild(inputGroup);
+    });
+
+    modal.classList.add('active');
 }
 
 function closeAddModal() {
@@ -357,29 +393,55 @@ function closeAddModal() {
 
 async function submitAdd() {
     const inputs = document.querySelectorAll('#addFormInputs input');
+    const btn = document.querySelector('.btn-submit');
 
-    // Construct Key-Value Object for n8n
-    const payload = {};
+    // Construct payload object
+    const payload = {
+        class: currentClass // Include current class
+    };
+
     inputs.forEach(input => {
-        const header = globalRawHeaders[parseInt(input.dataset.index)];
-        if (header) {
-            payload[header] = input.value;
+        const header = input.dataset.header;
+        if (header && input.value.trim()) {
+            payload[header] = input.value.trim();
         }
     });
 
-    const btn = document.querySelector('.btn-submit');
+    // Validate that at least some data is provided
+    if (Object.keys(payload).length <= 1) {
+        alert('최소한 하나의 필드를 입력해주세요.');
+        return;
+    }
+
     btn.disabled = true;
     btn.textContent = '저장 중...';
 
-    // Send payload directly (not wrapped in 'data' array)
-    const success = await apiRequest('add', payload);
+    // Use class-specific webhook URL
+    const webhookUrl = `http://localhost:5678/webhook/add-task-${currentClass}`;
 
-    btn.disabled = false;
-    btn.textContent = '저장하기';
+    try {
+        const response = await fetch(webhookUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
 
-    if (success) {
-        closeAddModal();
-        loadData(); // Refresh
+        if (response.ok) {
+            alert('✅ 일정이 추가되었습니다!');
+            closeAddModal();
+            // Wait a bit for the sheet to update, then reload
+            setTimeout(() => loadData(), 1000);
+        } else {
+            throw new Error('Failed to add task');
+        }
+    } catch (error) {
+        console.error('Error adding task:', error);
+        alert('❌ 일정 추가에 실패했습니다. n8n 웹훅이 실행 중인지 확인해주세요.');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = '저장하기';
     }
 }
 
