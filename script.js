@@ -417,8 +417,7 @@ async function submitAdd() {
     btn.textContent = '저장 중...';
 
     // Use class-specific webhook URL
-    const webhookUrl = `http://localhost:5678/webhook/add-task-${currentClass}`;
-
+    const webhookUrl = `https://gbshackathon.app.n8n.cloud/webhook/add-task-${currentClass}`;
     try {
         const response = await fetch(webhookUrl, {
             method: 'POST',
